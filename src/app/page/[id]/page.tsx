@@ -106,7 +106,7 @@ export default function PageView() {
   return (
     <div className="relative h-full">
       {/* 저장 상태 표시 */}
-      <div className="absolute top-3 right-5 z-10">
+      <div className="absolute top-3 right-4 z-10">
         {saveState === "saving" && (
           <span className="text-xs text-gray-400">저장 중...</span>
         )}
@@ -119,7 +119,7 @@ export default function PageView() {
       </div>
 
       {/* 컨텐츠 */}
-      <div className="max-w-[720px] mx-auto px-8 pt-16 pb-32">
+      <div className="max-w-[720px] mx-auto px-4 md:px-8 pt-14 md:pt-16 pb-32">
         {/* 이모지 */}
         <div className="relative mb-4">
           <button
@@ -157,11 +157,11 @@ export default function PageView() {
           value={page.title}
           onChange={handleTitleChange}
           placeholder="Untitled"
-          className="w-full text-4xl font-bold text-gray-900 bg-transparent border-none outline-none placeholder-gray-300 mb-6 resize-none"
+          className="w-full text-3xl md:text-4xl font-bold text-gray-900 bg-transparent border-none outline-none placeholder-gray-300 mb-6 resize-none"
         />
 
         {/* 에디터 */}
-        <div className="-mx-[54px]">
+        <div className="md:-mx-[54px]">
           <Editor
             key={page._id}
             initialContent={page.content}

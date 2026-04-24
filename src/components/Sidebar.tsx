@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { usePages } from "@/context/PagesContext";
@@ -19,7 +19,6 @@ function PageItem({
   const { createPage, deletePage } = usePages();
   const router = useRouter();
   const [expanded, setExpanded] = useState(true);
-  const [hovered, setHovered] = useState(false);
 
   const children = allPages.filter((p) => p.parentId === page._id);
   const isActive = pathname === `/page/${page._id}`;
@@ -44,8 +43,6 @@ function PageItem({
       <div
         className="group flex items-center gap-1 rounded-md px-1 py-[3px] cursor-pointer select-none"
         style={{ paddingLeft: `${8 + depth * 16}px` }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
       >
         {/* 토글 버튼 */}
         <button
@@ -81,11 +78,9 @@ function PageItem({
           <span className="truncate">{page.title || "Untitled"}</span>
         </Link>
 
-        {/* 호버 액션 */}
+        {/* 호버 액션 (모바일: 항상 표시, 데스크톱: hover 시 표시) */}
         <div
-          className={`flex items-center gap-[2px] transition-opacity ${
-            hovered ? "opacity-100" : "opacity-0"
-          }`}
+          className={`flex items-center gap-[2px] transition-opacity opacity-100 md:opacity-0 md:group-hover:opacity-100`}
         >
           <button
             onClick={handleNewChild}
@@ -125,7 +120,14 @@ function PageItem({
 export default function Sidebar() {
   const { pages, loading, createPage } = usePages();
   const router = useRouter();
-  const [collapsed, setCollapsed] = useState(false);
+  const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState(false); // 데스크톱 전용
+  const [mobileOpen, setMobileOpen] = useState(false); // 모바일 전용
+
+  // 페이지 이동 시 모바일 사이드바 닫기
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   const rootPages = pages.filter((p) => p.parentId === null);
 
@@ -134,65 +136,119 @@ export default function Sidebar() {
     router.push(`/page/${id}`);
   };
 
-  if (collapsed) {
-    return (
-      <div className="flex flex-col items-center w-10 h-full border-r border-gray-200 bg-[#f7f7f5] py-3 gap-2 shrink-0">
-        <button
-          onClick={() => setCollapsed(false)}
-          className="w-7 h-7 flex items-center justify-center rounded text-gray-400 hover:bg-gray-200 transition-colors"
-          title="사이드바 열기"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col w-60 h-full border-r border-gray-200 bg-[#f7f7f5] shrink-0">
-      {/* 헤더 */}
-      <div className="flex items-center justify-between px-3 pt-4 pb-2">
-        <span className="text-sm font-semibold text-gray-700 tracking-tight">Yestion</span>
+    <>
+      {/* 모바일 햄버거 버튼 (사이드바 닫혔을 때만) */}
+      {!mobileOpen && (
         <button
-          onClick={() => setCollapsed(true)}
-          className="w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:bg-gray-200 transition-colors"
-          title="사이드바 접기"
+          onClick={() => setMobileOpen(true)}
+          className="fixed top-3 left-3 z-40 md:hidden w-9 h-9 flex items-center justify-center rounded-lg bg-white border border-gray-200 shadow-sm text-gray-600"
+          title="메뉴 열기"
         >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-      </div>
+      )}
 
-      {/* 페이지 목록 */}
-      <div className="flex-1 overflow-y-auto px-1 py-1">
-        {loading ? (
-          <div className="px-3 py-2 text-xs text-gray-400">불러오는 중...</div>
-        ) : rootPages.length === 0 ? (
-          <div className="px-3 py-2 text-xs text-gray-400">페이지가 없습니다</div>
+      {/* 모바일 백드롭 */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* 사이드바 패널 */}
+      {/* 모바일: fixed 드로어 / 데스크톱: static flex 아이템 */}
+      <div
+        className={[
+          // 모바일: fixed 오버레이
+          "fixed inset-y-0 left-0 z-50",
+          "transition-transform duration-200 ease-in-out",
+          mobileOpen ? "translate-x-0" : "-translate-x-full",
+          // 데스크톱: static, translate 초기화
+          "md:static md:inset-auto md:z-auto md:translate-x-0",
+          // 너비: 모바일 w-72, 데스크톱 collapsed 여부
+          "w-72",
+          collapsed ? "md:w-10" : "md:w-60",
+          // 공통
+          "h-full flex flex-col border-r border-gray-200 bg-[#f7f7f5] shrink-0",
+        ].join(" ")}
+      >
+        {collapsed ? (
+          /* 데스크톱 접힌 상태 (아이콘 바) */
+          <div className="hidden md:flex flex-col items-center py-3 gap-2">
+            <button
+              onClick={() => setCollapsed(false)}
+              className="w-7 h-7 flex items-center justify-center rounded text-gray-400 hover:bg-gray-200 transition-colors"
+              title="사이드바 열기"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
         ) : (
-          rootPages
-            .sort((a, b) => a.order - b.order || a.createdAt.localeCompare(b.createdAt))
-            .map((page) => (
-              <PageItem key={page._id} page={page} allPages={pages} depth={0} />
-            ))
+          /* 펼쳐진 사이드바 */
+          <>
+            {/* 헤더 */}
+            <div className="flex items-center justify-between px-3 pt-4 pb-2">
+              <span className="text-sm font-semibold text-gray-700 tracking-tight">Yestion by Slu Park</span>
+              <div className="flex items-center gap-1">
+                {/* 모바일 닫기 버튼 */}
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  className="md:hidden w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:bg-gray-200 transition-colors"
+                  title="닫기"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                {/* 데스크톱 접기 버튼 */}
+                <button
+                  onClick={() => setCollapsed(true)}
+                  className="hidden md:flex w-6 h-6 items-center justify-center rounded text-gray-400 hover:bg-gray-200 transition-colors"
+                  title="사이드바 접기"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* 페이지 목록 */}
+            <div className="flex-1 overflow-y-auto px-1 py-1">
+              {loading ? (
+                <div className="px-3 py-2 text-xs text-gray-400">불러오는 중...</div>
+              ) : rootPages.length === 0 ? (
+                <div className="px-3 py-2 text-xs text-gray-400">페이지가 없습니다</div>
+              ) : (
+                rootPages
+                  .sort((a, b) => a.order - b.order || a.createdAt.localeCompare(b.createdAt))
+                  .map((page) => (
+                    <PageItem key={page._id} page={page} allPages={pages} depth={0} />
+                  ))
+              )}
+            </div>
+
+            {/* 새 페이지 버튼 */}
+            <div className="px-2 pb-4 pt-1 border-t border-gray-200">
+              <button
+                onClick={handleNewPage}
+                className="w-full flex items-center gap-2 px-2 py-2 rounded-md text-sm text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                새 페이지
+              </button>
+            </div>
+          </>
         )}
       </div>
-
-      {/* 새 페이지 버튼 */}
-      <div className="px-2 pb-4 pt-1 border-t border-gray-200">
-        <button
-          onClick={handleNewPage}
-          className="w-full flex items-center gap-2 px-2 py-2 rounded-md text-sm text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          새 페이지
-        </button>
-      </div>
-    </div>
+    </>
   );
 }

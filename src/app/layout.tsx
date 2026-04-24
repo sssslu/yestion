@@ -10,7 +10,7 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Yestion",
+  title: "Yestion by Slu Park",
   description: "A personal Notion-like workspace",
 };
 
