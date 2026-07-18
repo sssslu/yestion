@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="h-full flex overflow-hidden bg-white text-gray-900">
+      <body className="h-full flex overflow-hidden bg-white text-[#37352f]">
         <PagesProvider>
           <Sidebar />
           <main className="flex-1 h-full overflow-y-auto">{children}</main>

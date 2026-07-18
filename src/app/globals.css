@@ -2,17 +2,69 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #37352f;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-geist-sans), "Pretendard", "Apple SD Gothic Neo",
+    "Malgun Gothic", "Segoe UI", sans-serif;
 }
 
 html,
 body {
   height: 100%;
   overflow: hidden;
+}
+
+/* 키보드 포커스 링 — base 레이어에 두어 유틸리티(outline-none 등)가 이기도록 함 */
+@layer base {
+  :where(:focus-visible) {
+    outline: 2px solid rgba(35, 131, 226, 0.55);
+    outline-offset: 1px;
+  }
+}
+
+::selection {
+  background: rgba(35, 131, 226, 0.25);
+}
+
+/* Notion풍 얇은 스크롤바 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d3d1cb transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d3d1cb;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #aeaca6;
+}
+
+/* BlockNote 에디터·메뉴를 앱 폰트와 통일
+   (.bn-default-styles가 .bn-editor에 font-family를 직접 지정하므로 요소를 직접 타겟;
+   슬래시 메뉴 등은 body 직속 .bn-root 포털로 렌더됨) */
+body .bn-container .bn-editor,
+body .bn-root {
+  --bn-font-family: var(--font-geist-sans), "Pretendard",
+    "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", sans-serif;
+  font-family: var(--bn-font-family);
+}
+
+/* 모바일: BlockNote 기본 padding-inline 54px 제거 — 제목과 본문 정렬 */
+@media (max-width: 767px) {
+  body .bn-container .bn-editor {
+    padding-inline: 0;
+  }
 }

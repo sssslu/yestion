@@ -9,4 +9,4 @@ export interface Page {
   updatedAt: string;
 }
 
-export interface PageMeta extends Omit<Page, "content"> {}
+export type PageMeta = Omit<Page, "content">;

@@ -1,6 +1,5 @@
 "use client";
 
-import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 
 import { useCreateBlockNote } from "@blocknote/react";
@@ -15,7 +14,9 @@ interface EditorProps {
 
 export default function Editor({ initialContent, onChange }: EditorProps) {
   const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   const editor = useCreateBlockNote({
     initialContent:
