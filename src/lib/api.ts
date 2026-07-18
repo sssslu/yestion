@@ -3,6 +3,8 @@ import type { Page, PageMeta } from "@/types";
 
 const API = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
+  // ngrok 무료 도메인의 브라우저 경고 페이지 우회 (값은 아무거나)
+  headers: { "ngrok-skip-browser-warning": "1" },
 });
 
 export const api = {
