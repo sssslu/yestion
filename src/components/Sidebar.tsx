@@ -264,7 +264,7 @@ export default function Sidebar() {
           <>
             {/* 헤더 */}
             <div className="flex items-center justify-between px-3 pt-4 pb-2">
-              <span className="text-sm font-semibold text-stone-700 tracking-tight">Yestion by Slu Park</span>
+              <span className="text-sm font-semibold text-stone-700 tracking-tight">Nonotion by Slu Park</span>
               <div className="flex items-center gap-1">
                 {/* 모바일 닫기 버튼 */}
                 <button

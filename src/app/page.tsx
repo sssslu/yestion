@@ -63,7 +63,7 @@ export default function Home() {
     <div className="flex flex-col items-center justify-center h-full text-center px-8">
       <span className="text-5xl" aria-hidden="true">📝</span>
       <h1 className="mt-4 text-2xl font-semibold text-[#37352f]">
-        Yestion에 오신 것을 환영합니다
+        Nonotion에 오신 것을 환영합니다
       </h1>
       <p className="mt-2 text-sm text-stone-500 max-w-sm">
         사이드바에서 새 페이지를 만들거나 아래 버튼을 눌러 시작하세요.

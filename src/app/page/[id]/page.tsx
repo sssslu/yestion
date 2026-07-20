@@ -104,9 +104,9 @@ export default function PageView() {
   const pageTitle = page?.title;
   useEffect(() => {
     if (pageEmoji === undefined) return;
-    document.title = `${pageEmoji} ${pageTitle || "Untitled"} — Yestion`;
+    document.title = `${pageEmoji} ${pageTitle || "Untitled"} — Nonotion`;
     return () => {
-      document.title = "Yestion by Slu Park";
+      document.title = "Nonotion by Slu Park";
     };
   }, [pageEmoji, pageTitle]);
 
