@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { usePages } from "@/context/PagesContext";
@@ -171,6 +171,27 @@ export default function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false); // 모바일 전용
   const [creating, setCreating] = useState(false);
 
+  // 로고 10번 연속 클릭 → 숨겨진 관리자 페이지 (1.5초 쉬면 카운트 리셋)
+  const logoClicks = useRef(0);
+  const logoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (logoTimer.current) clearTimeout(logoTimer.current);
+    };
+  }, []);
+  const handleLogoClick = () => {
+    if (logoTimer.current) clearTimeout(logoTimer.current);
+    logoClicks.current += 1;
+    if (logoClicks.current >= 10) {
+      logoClicks.current = 0;
+      router.push("/admin");
+      return;
+    }
+    logoTimer.current = setTimeout(() => {
+      logoClicks.current = 0;
+    }, 1500);
+  };
+
   // 페이지 이동 시 모바일 사이드바 닫기
   useEffect(() => {
     setMobileOpen(false);
@@ -264,7 +285,12 @@ export default function Sidebar() {
           <>
             {/* 헤더 */}
             <div className="flex items-center justify-between px-3 pt-4 pb-2">
-              <span className="text-sm font-semibold text-stone-700 tracking-tight">Nonotion by Slu Park</span>
+              <span
+                onClick={handleLogoClick}
+                className="text-sm font-semibold text-stone-700 tracking-tight select-none"
+              >
+                Nonotion by Slu Park
+              </span>
               <div className="flex items-center gap-1">
                 {/* 모바일 닫기 버튼 */}
                 <button

@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { Page, PageMeta } from "@/types";
+import { logWrite } from "@/lib/editLog";
 
 const API = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -18,12 +19,19 @@ export const api = {
     title?: string;
     emoji?: string;
     parentId?: string | null;
-  }): Promise<Page> => API.post("/yestion/pages", data).then((r) => r.data),
+  }): Promise<Page> =>
+    API.post("/yestion/pages", data).then((r) => {
+      void logWrite(r.data._id);
+      return r.data;
+    }),
 
   updatePage: (
     id: string,
     data: Partial<Pick<Page, "title" | "emoji" | "content" | "parentId" | "order">>
-  ): Promise<void> => API.patch(`/yestion/pages/${id}`, data).then(() => {}),
+  ): Promise<void> =>
+    API.patch(`/yestion/pages/${id}`, data).then(() => {
+      void logWrite(id);
+    }),
 
   deletePage: (id: string): Promise<{ deleted: number }> =>
     API.delete(`/yestion/pages/${id}`).then((r) => r.data),
